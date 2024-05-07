@@ -41,5 +41,5 @@ Set your environment in the `.env` file. Like `OPEN_API_KEY` value.
 
 ## Run the FastAPI server
 ```bash
-python main.py
+uvicorn main:app --reload
 ```
