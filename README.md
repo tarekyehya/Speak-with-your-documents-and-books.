@@ -43,4 +43,3 @@ Set your environment in the `.env` file. Like `OPEN_API_KEY` value.
 ```bash
 uvicorn main:app --reload
 ```
-
