@@ -1,6 +1,6 @@
 # mini-rag-app
 
-this is minimal implementation of the RAG model for question answering.
+this is minimal implementation of the RAG model for question answering to be in production.
 
 ## requirements
 
