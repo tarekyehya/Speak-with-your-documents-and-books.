@@ -34,10 +34,20 @@ $ pip install -r requirements.txt
 ### setup the environment 
 
 ```bash
+$ cd src
 $ cp .env.example .env
 ```
 
 Set your environment in the `.env` file. Like `OPEN_API_KEY` value.
+
+## Run Docker Compose Services
+
+```bash
+$ cd docker
+$ cp .env.example .env
+```
+
+set `.env` with your credentials
 
 ## Run the FastAPI server
 ```bash
