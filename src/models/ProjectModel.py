@@ -8,10 +8,35 @@ class ProjectModel(BaseDataModel):
         super().__init__(db_client=db_client)
         self.collection = self.db_client[DataBaseEnum.COLLECTION_PROJECT_NAME.value]
 
+
+    # we want to call init_collection
+    @staticmethod
+    async def create_instance(db_client: object):
+        instance = ProjectModel(db_client)
+        await instance.init_collection()
+        return instance
+
+
+    
+    # create index
+    async def init_collection(self):
+        all_collections = await self.db_client.list_collection_names()
+        if DataBaseEnum.COLLECTION_PROJECT_NAME.value not in all_collections:
+            self.collection = self.db_client[DataBaseEnum.COLLECTION_PROJECT_NAME.value]
+            indexes = Project.get_indexes() # staticmethod
+            for index in indexes:
+                await self.collection.create_index(
+                    index['key'],
+                    name=index['name'],
+                    unique=index['unique']
+                    
+                )
+    
+    
     async def create_project(self, project: Project):
 
         result = await self.collection.insert_one(project.dict(by_alias=True, exclude_unset=True))
-        project._id = result.inserted_id
+        project.id = result.inserted_id
 
         return project
 
