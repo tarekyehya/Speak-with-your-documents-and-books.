@@ -2,6 +2,10 @@ from .BaseDataModel import BaseDataModel
 from .db_schemes import Asset
 from .enum.DataBaseEnum import DataBaseEnum
 from bson import ObjectId
+import logging
+
+# for test internal methods
+logger = logging.getLogger("uvicorn.error")
 
 class AssetModel(BaseDataModel):
     def __init__(self, db_client: object):
@@ -40,7 +44,38 @@ class AssetModel(BaseDataModel):
         
         return asset
     
-    async def get_all_project_assets(self, asset_project_id: str):
-        return await self.collection.find({
-            "asset_project_id": ObjectId(asset_project_id)
+    async def get_all_project_assets(self, asset_project_id: str, asset_type: str):
+        records =  await self.collection.find({
+            "asset_project_id": ObjectId(asset_project_id) if isinstance(asset_project_id,str) else asset_project_id, # convert to ObjectId
+            "asset_type" : asset_type
         }).to_list(length=None)
+        
+        
+        return [
+            Asset(**record)
+            for record in records
+        ] # list of records --> in pydantic form
+        
+        
+    async def get_asset_record(self,asset_name : str,asset_project_id : str,asset_type: str):
+            record =  await self.collection.find_one({
+                "asset_name": asset_name,
+                "asset_project_id": ObjectId(asset_project_id) if isinstance(asset_project_id,str) else asset_project_id, # convert to ObjectId
+                "asset_type" : asset_type
+            })
+            
+            if record:
+                return [Asset(**record)] # list to be like the get_all_project_assets return
+            return None # to distinguish in the error massage 
+     
+    
+    async def get_assets(self,asset_name : str,asset_project_id : str,asset_type: str):
+        """
+        general method to return files of the project or only file
+        """
+        if asset_name:
+            return  await self.get_asset_record(asset_name ,asset_project_id,asset_type)
+        else:
+            
+            return await self.get_all_project_assets(asset_project_id, asset_type)
+        
