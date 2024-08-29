@@ -14,17 +14,20 @@ class ProcessController(BaseController):
         self.project_id = project_id 
         self.project_path = ProjectController().get_project_path(project_id=project_id)
     
-    def file_extinsion(self,file_id: str):
-        extinsion = os.path.splitext(file_id)[-1]
+    def file_extinsion(self,file_name: str):
+        extinsion = os.path.splitext(file_name)[-1]
         return extinsion
     
-    def get_file_loader(self, file_id: str):
+    def get_file_loader(self, file_name: str):
         
-        file_ext = self.file_extinsion(file_id=file_id)
+        file_ext = self.file_extinsion(file_name=file_name)
         file_path = os.path.join(
             self.project_path,
-            file_id
+            file_name
         )
+        
+        if not os.path.exists(file_path):
+            return None
         
         if file_ext == ProcessingEnum.TXT.value:
             return TextLoader(file_path, encoding="utf-8")
@@ -34,11 +37,14 @@ class ProcessController(BaseController):
         
         return None
         
-    def get_file_content(self,file_id: str):
-        loader = self.get_file_loader(file_id=file_id)
-        return loader.load()
+    def get_file_content(self,file_name: str):
+        loader = self.get_file_loader(file_name=file_name)
+        if loader:
+            return loader.load()
+        
+        return None # the file is not exist
     
-    def process_file_content(self,file_content: list,file_id: str,
+    def process_file_content(self,file_content: list,file_name: str,
                              chunk_size: int=100,overlab_size: int=20):
         
         text_splitter = RecursiveCharacterTextSplitter(

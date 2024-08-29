@@ -10,4 +10,7 @@ class ResponseMassages(Enum):
     FILE_UPLOAD_FAILED = "file_upload_failed"
     FILE_PROCESSING_FAILED = "processing_file_failed" 
     FILE_PROCESSING_SUCCESS = "processing_file_success"
+    FILE_NO_FILES_ERROR = "not_found_files"
+    FILE__NAME_INCORRECT = "the file name is not correct"
+    
      

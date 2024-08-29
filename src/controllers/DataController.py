@@ -20,7 +20,7 @@ class DataController(BaseController):
         if file.size > self.app_settings.FILE_MAX_SIZE * self.size_scale:
             return False, rs.FILE_SIZE_EXCEEDED.value
         
-        return True, rs.FILE_UPLOD_SUCCESS.value # in feature, we will may need to modify the massage, validation true not mean the file uploaded success
+        return True, rs.FILE_UPLOD_SUCCESS.value # in future, we will may need to modify the massage, validation true not mean the file uploaded success
      
     def generate_unique_name(self,original_file_name: str, project_id: str):
         
