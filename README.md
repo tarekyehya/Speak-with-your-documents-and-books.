@@ -1,7 +1,7 @@
-# mini-rag-app
+# Speak-with-your-documents-and-books.
 
-this is minimal implementation of the RAG model for question answering to be in production.
 
+Speak with Your Documents and books project allows you to ask a question to an LLM (GPT, CoHere, ..  ). It retrieves the most relevant sections from your documents and combines them with the model’s knowledge to provide accurate answers based on your specific content (RAG).
 ## requirements
 
 - python 3.8 or later
