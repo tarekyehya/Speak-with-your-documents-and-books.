@@ -1,4 +1,4 @@
-from types import List
+from typing import List
 from qdrant_client import QdrantClient, models
 from ..VectorDBInterface import VectorDBInterface
 from..VectorDBEnums import VectorDBEnums, DistanceMethodEnum
@@ -6,28 +6,27 @@ from typing import List
 
 import logging
 
-class QdrantDB(VectorDBInterface):
+class QdrantDBProvider(VectorDBInterface):
     def __init__(self, db_path: str,
-                 Distance_method: str):
+                 distance_method: str):
         self.client = None
         self.db_path = db_path
         self.distance_method = None
         
-        if Distance_method == DistanceMethodEnum.COSINE.value:
+        if distance_method == DistanceMethodEnum.COSINE.value:
             self.distance_method = models.Distance.COSINE
-        elif Distance_method == DistanceMethodEnum.DOT.value:
+        elif distance_method == DistanceMethodEnum.DOT.value:
             self.distance_method = models.Distance.DOT
         
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger("uvicorn")
     
     def connect(self):
         try:
-            self.client = QdrantClient(self.db_path)
+            self.client = QdrantClient(path = self.db_path)
             self.logger.info(f"Connected to Qdrant DB: {self.db_path}")
         except Exception as e:
             self.logger.error(f"Failed to connect to Qdrant DB: {self.db_path}. Error: {str(e)}")
-            
-    
+                
     def disconnect(self):
         self.client = None
     
@@ -65,14 +64,13 @@ class QdrantDB(VectorDBInterface):
         if not self.is_collection_exists(collection_name):
             self.logger.info(f"Creating new collection: {collection_name}")
             self.client.create_collection(
-                name=collection_name,
-                vector_size=embeddeding_size,
-                distance=self.distance_method
+                collection_name=collection_name,
+                vectors_config = models.VectorParams(size=embeddeding_size, distance=self.distance_method),
                 )
             return True  # collection created successfully
             
         else:
-            self.logger.info(f"Collection already exists: {collection_name}")
+            self.logger.info(f"Collection already exists: {collection_name}") 
         
         return False 
         
@@ -128,12 +126,14 @@ class QdrantDB(VectorDBInterface):
             if batch_end > len(texts):
                 batch_end = len(texts)
             
+            record_ids = list(range(i, batch_end)) # to add record_ids ## required for models.Record Pydantic model.
             batch_text = texts[i:batch_end]
             batch_vectors = vectors[i:batch_end]
             batch_metadatas = metadatas[i:batch_end]
             
             batch_records = [
                 models.Record(
+                    id=record_ids[x],
                     vector=batch_vectors[x],
                     payload={
                         'text' : batch_text[x],

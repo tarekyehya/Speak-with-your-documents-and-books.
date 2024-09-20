@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routes import base, data
+from routes import base, data, nlp
 from motor.motor_asyncio import AsyncIOMotorClient
 from contextlib import asynccontextmanager
 from helpers.config import get_settings
@@ -15,10 +15,7 @@ async def lifespan(app: FastAPI):
     app.mongo_conn = AsyncIOMotorClient(settings.MONGODB_URL)
     app.db_client = app.mongo_conn[settings.MONGODB_DATABASE]
     
-    # for testing
-    print(app.mongo_conn)
-    
-    # setting LLMs
+    # setting instances
     llm_provider_factory =  LLMProviderFactory(config=settings)
     vecttor_db_provider_factory = VectorDBProvidersFactory(config=settings)
     
@@ -46,3 +43,4 @@ app = FastAPI(lifespan = lifespan)
 
 app.include_router(base.base_router)
 app.include_router(data.data_router)
+app.include_router(nlp.nlp_router)
