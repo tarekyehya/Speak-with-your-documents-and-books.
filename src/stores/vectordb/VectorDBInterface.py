@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from types import List
+from typing import List
 
 class VectorDBInterface(ABC):
     
