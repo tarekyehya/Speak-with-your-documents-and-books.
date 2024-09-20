@@ -6,7 +6,7 @@ class LLMProviderFactory:
         self.config = config
     
     def create(self, provider: str):
-        if provider == LLMEnums.OPENAI:
+        if provider == LLMEnums.OPENAI.value:
             return OpenAIProvider(
                 api_key = self.config.OPENAI_API_KEY,
                 api_url = self.config.OPENAI_API_URL,
@@ -14,7 +14,7 @@ class LLMProviderFactory:
                 default_generation_max_output_tokens = self.config.GENERATION_DAFAULT_MAX_TOKENS,
                 temperature = self.config.GENERATION_DAFAULT_TEMPERATURE
             )
-        if provider == LLMEnums.COHERE:
+        if provider == LLMEnums.COHERE.value:
             return CoHereProvider(
                 api_key = self.config.COHERE_API_KEY,
                 default_input_max_chars = self.config.INPUT_DAFAULT_MAX_CHARACTERS,
