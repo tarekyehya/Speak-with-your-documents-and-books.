@@ -84,7 +84,7 @@ class CoHereProvider(LLMInterface):
             input_type = CoHereEnum.QUERY.value
         
         
-        response = self.client.embed(texts = text, # may need to truncate ?
+        response = self.client.embed(texts = [text], # may need to truncate ?
                                                  model=self.embedding_model_id,
                                                   embedding_types=['float'],
                                                   input_type=input_type
