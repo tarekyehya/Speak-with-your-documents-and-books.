@@ -9,6 +9,7 @@ class CoHereProvider(LLMInterface):
                  default_generation_max_output_tokens: int=1000,
                  temperature: float=0.2):
         
+        print("Cohere instance initialized")
         self.api_key = api_key
    
         
@@ -22,6 +23,8 @@ class CoHereProvider(LLMInterface):
         self.embedding_size = None
         
         self.client = cohere.Client(api_key=self.api_key)
+        
+        self.enums = CoHereEnum
         
         self.logger = logging.getLogger(__name__)
         
@@ -57,7 +60,7 @@ class CoHereProvider(LLMInterface):
         response = self.client.chat(
             model=self.generation_model_id,
             chat_history=chat_history,
-            message = self.construct_prompt(prompt=prompt,role=CoHereEnum.USER.value),
+            message = self.process_text(prompt),
             max_tokens = max_output_tokens,
             temperature =temperature
         )
