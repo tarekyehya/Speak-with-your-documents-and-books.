@@ -6,11 +6,13 @@ import json
 
 class NLPController(BaseController):
     # vector db, LLM, mongo db (chunkModel, ProjectModel)
-    def __init__(self,vectordb_client, generation_client, embedding_client):
+    def __init__(self,vectordb_client, generation_client,
+                 embedding_client, template_parser = None):
         super().__init__()
         self.vectordb_client = vectordb_client
         self.generation_client = generation_client
         self.embedding_client = embedding_client
+        self.template_parser = template_parser
         
     def create_collection_name(self,project_id: str):
 
@@ -81,8 +83,58 @@ class NLPController(BaseController):
         if not search_results:
             return False
 
-        return json.loads(
-            json.dumps(search_results, default= lambda x: x.__dict__)
+        return search_results # List[RetrievedDocument]
+        
+    
+    def answer_rag_query(self, project: Project, query: str, top_k: int = 10):
+        
+        # initialize vars
+        answer, full_prompt, chat_history = None, None, None
+        
+        # step1: retrieve relevant documents
+        search_results = self.search_by_query_in_collection_vectordb(project, query, top_k)
+
+        # parse results using template
+        if not search_results or len(search_results) == 0:
+            return answer, full_prompt, chat_history
+        
+        # step2: construct LLM prompt
+        system_prompt = self.template_parser.get("rag", "system_prompt")
+        
+        documents_prompts = "\n".join([
+            self.template_parser.get("rag", "document_prompt",{
+                                     "doc_num" : idx + 1,
+                                     "chunk_text" : doc.text }
+            )
+            
+            for idx, doc in enumerate(search_results)
+        ])
+        
+        
+        footer_prompt = self.template_parser.get("rag", "footer_prompt", {
+            "query": query
+        })
+        
+        # chat history will hold the system_prompt
+        chat_history = [
+            self.generation_client.construct_prompt(
+                prompt = system_prompt,
+                role = self.generation_client.enums.SYSTEM.value
+                
+            )
+        ]
+        
+        full_prompt = "\n\n".join([
+            documents_prompts,
+            footer_prompt
+        ])
+        
+        answer = self.generation_client.generate_text(
+            prompt= full_prompt,
+            chat_history = chat_history,
+            max_output_tokens = self.app_settings.GENERATION_DAFAULT_MAX_TOKENS,
+            temperature = self.app_settings.GENERATION_DAFAULT_TEMPERATURE
         )
         
-        
+        return answer, full_prompt, chat_history
+    
