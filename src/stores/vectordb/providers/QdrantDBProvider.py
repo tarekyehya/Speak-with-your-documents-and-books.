@@ -2,6 +2,7 @@ from typing import List
 from qdrant_client import QdrantClient, models
 from ..VectorDBInterface import VectorDBInterface
 from..VectorDBEnums import VectorDBEnums, DistanceMethodEnum
+from models.db_schemes import RetrievedDocument
 from typing import List
 
 import logging
@@ -155,13 +156,32 @@ class QdrantDBProvider(VectorDBInterface):
         return True
     
     
-    def search_by_vector(self, collection_name: str, vector: List[float], top_k: int = 5) -> List:
-        # TODO:validation here
-        return self.client.query_points(
+    def search_by_vector(self, collection_name: str, vector: List[float], top_k: int = 5) -> List[RetrievedDocument]:
+        
+        result =  self.client.query_points(
             collection_name=collection_name,
             query=vector,
             limit = top_k
             )
+        
+        
+        if not result or len(result.points) == 0:
+            return  None
+        
+        return [
+            RetrievedDocument(**{
+                "text": point.payload.get("text",""), # payload["text"] is valid, but this for learning purpose.
+                "score": point.score
+                
+            })
+          
+          for point in result.points
+        ]
+        
+        
+            
+        
+        
                     
         
         
