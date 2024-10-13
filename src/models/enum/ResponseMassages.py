@@ -19,9 +19,7 @@ class ResponseMassages(Enum):
     GET_VECTORDB_INFO_failed = "get_vectordb_info_failed"
     VECTORDB_COLLECTION_NOT_EXISTS = "collection_not_exists"
     SEARCH_IN_VECTORDB_SUCCESS = "search_in_vectordb_success"
+    SEARCH_IN_VECTORDB_FAILED = "search_in_vectordb_failed"
+    RAG_ANSWER_FAILED = "answer_query_failed"
+    RAG_ANSWER_SUCCESS = "answer_query_success"
     
-    
-    
-    
-    
-     
